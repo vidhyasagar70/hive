@@ -1,0 +1,118 @@
+/* Dashboard Layout */
+.dashboard {
+    display: flex;
+    height: 100vh;
+  }
+  
+  /* Sidebar Styling */
+  .sidebar {
+    width: 250px;
+    background: #0f172a; /* Dark blue background */
+    color: #ffffff; /* White text */
+    padding: 20px;
+    overflow-y: auto;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    color: #facc15; /* Bright yellow logo */
+    margin-bottom: 20px;
+    display: block;
+  }
+  
+  /* Sidebar Navigation */
+  nav ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .menu-item, 
+  .submenu > span {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    cursor: pointer;
+    background: #1e293b; /* Darker shade */
+    border-radius: 5px;
+    margin: 5px 0;
+    transition: background 0.3s ease;
+    color: #f8fafc;
+  }
+  
+  .menu-item:hover, 
+  .submenu span:hover {
+    background: #334155;
+    color: #facc15; /* Yellow hover effect */
+  }
+  
+  /* Submenu Styling */
+  .submenu-list {
+    display: none;
+    padding-left: 15px;
+  }
+  
+  .submenu-list.open {
+    display: block;
+  }
+  
+  .submenu-list li {
+    padding: 8px 10px;
+    background: #1e293b;
+    border-radius: 5px;
+    margin: 3px 0;
+    color: #f8fafc;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .submenu-list li:hover {
+    background: #475569;
+    color: #facc15;
+  }
+  
+  /* Icons */
+  .icon {
+    transition: transform 0.3s ease;
+  }
+  
+  .icon.open {
+    transform: rotate(180deg);
+  }
+  
+  /* Content Area */
+  .content {
+    flex: 1;
+    padding: 20px;
+    background: #f8fafc; /* Light background */
+    color: #1e293b; /* Dark text */
+    overflow-y: auto;
+  }
+  
+  .dashboard-header h1 {
+    font-size: 2rem;
+    color: #0f172a; /* Dark text */
+  }
+  
+  /* Dashboard Alert */
+  .dashboard-alert {
+    background: #d1fae5;
+    color: #065f46;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .dashboard {
+      flex-direction: column;
+    }
+  
+    .sidebar {
+      width: 100%;
+    }
+  }
+  
