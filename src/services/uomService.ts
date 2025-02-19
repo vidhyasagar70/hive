@@ -51,25 +51,46 @@ export async function createUom(uom: UOM): Promise<ApiResponse<UOM>> {
 
 // Update a UOM
 export async function updateUom(id: string, uom: UOM): Promise<ApiResponse<UOM>> {
-  const token = getAuthToken();
-  if (!token) return { error: "Unauthorized. Please log in." };
-
-  try {
-    const response = await fetch(`${API_URL}/uoms/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(uom),
-    });
-
-    const data = await response.json();
-    return response.ok ? { data } : { error: data?.msg || "Failed to update UOM." };
-  } catch (error) {
-    return { error: "Network error. Please try again." };
+    const token = getAuthToken();
+    if (!token) return { error: "Unauthorized. Please log in." };
+  
+    // ✅ Ensure request format exactly matches Swagger
+    const requestBody = {
+      code: uom.code,
+      name: uom.name,
+      status: uom.status,
+      updatedAt: new Date().toISOString(), // Some APIs require timestamps
+    };
+  
+    console.log(`🔄 Updating UOM at: ${API_URL}/users/${id}`);
+    console.log("📤 Request Body:", JSON.stringify(requestBody, null, 2));
+    console.log("🔑 Auth Token:", token);
+  
+    try {
+      const response = await fetch(`${API_URL}/users/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+  
+      const data = await response.json();
+      console.log("📥 API Response:", data);
+  
+      if (!response.ok) {
+        console.error("❌ Update Failed:", data?.msg || "Unknown error");
+        return { error: data?.msg || "Failed to update UOM." };
+      }
+  
+      return { data };
+    } catch (error) {
+      console.error("❌ Network error:", error);
+      return { error: "Network error. Please try again." };
+    }
   }
-}
+  
 
 // Delete a UOM
 export async function deleteUom(id: string): Promise<ApiResponse<null>> {

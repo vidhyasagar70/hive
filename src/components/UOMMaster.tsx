@@ -40,20 +40,30 @@ const UOMMaster: React.FC = () => {
     }
     setIsLoading(false);
   };
-
   const handleEditUom = async () => {
-    if (!editingUom?._id) return;
-
+    if (!editingUom?._id) {
+      console.error("Editing UOM ID is missing!");
+      alert("UOM ID is missing!");
+      return;
+    }
+  
+    console.log("Editing UOM:", editingUom);
+  
     setIsLoading(true);
     const result = await updateUom(editingUom._id, editingUom);
+  
     if (result.error) {
+      console.error("Update Error:", result.error);
       setError(result.error);
     } else {
-      setUomData(uomData.map((u) => (u._id === editingUom._id ? result.data as UOM : u)));
+      console.log("UOM updated successfully:", result.data);
+      setUomData(uomData.map((u) => (u._id === editingUom._id ? (result.data as UOM) : u)));
       setEditingUom(null);
     }
+  
     setIsLoading(false);
   };
+  
 
   const handleDeleteUom = async (id: string) => {
     setIsLoading(true);
@@ -71,13 +81,27 @@ const UOMMaster: React.FC = () => {
       <h2>UOM Master</h2>
       {error && <p className="text-red-500">{error}</p>}
 
+      {/* Add UOM Form */}
       <div>
         <input type="text" placeholder="Code" value={newUom.code} onChange={(e) => setNewUom({ ...newUom, code: e.target.value })} />
         <input type="text" placeholder="Name" value={newUom.name} onChange={(e) => setNewUom({ ...newUom, name: e.target.value })} />
         <input type="text" placeholder="Status" value={newUom.status} onChange={(e) => setNewUom({ ...newUom, status: e.target.value })} />
-        <button onClick={handleAddUom}>{isLoading ? "Adding..." : "Add UOM"}</button>
+        <button onClick={handleAddUom} disabled={isLoading}>{isLoading ? "Adding..." : "Add UOM"}</button>
       </div>
 
+      {/* Edit UOM Form */}
+      {editingUom && (
+        <div>
+          <h3>Edit UOM</h3>
+          <input type="text" value={editingUom.code} onChange={(e) => setEditingUom({ ...editingUom, code: e.target.value })} />
+          <input type="text" value={editingUom.name} onChange={(e) => setEditingUom({ ...editingUom, name: e.target.value })} />
+          <input type="text" value={editingUom.status} onChange={(e) => setEditingUom({ ...editingUom, status: e.target.value })} />
+          <button onClick={handleEditUom} disabled={isLoading}>{isLoading ? "Updating..." : "Update UOM"}</button>
+          <button onClick={() => setEditingUom(null)}>Cancel</button>
+        </div>
+      )}
+
+      {/* UOM List */}
       <ul>
         {uomData.map((u) => (
           <li key={u._id}>
