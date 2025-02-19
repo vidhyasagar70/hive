@@ -67,7 +67,7 @@ export async function updateUom(id: string, uom: UOM): Promise<ApiResponse<UOM>>
     console.log("🔑 Auth Token:", token);
   
     try {
-      const response = await fetch(`${API_URL}/users/${id}`, {
+      const response = await fetch(`${API_URL}/uoms/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
