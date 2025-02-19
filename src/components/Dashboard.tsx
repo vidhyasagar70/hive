@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../styles/dashboard.css"; // Adjust path based on React.js structure
+import UOMMaster from "../components/UOMMaster"; // Adjust the path based on your project structure
 
 // Define OpenMenus interface
 interface OpenMenus {
@@ -95,12 +96,15 @@ const Dashboard: React.FC = () => {
       </aside>
 
       <main className="content">
-        <div className="dashboard-header">
-          <h1>Welcome to Dashboard</h1>
-        </div>
+  <div className="dashboard-header">
+    <h1>Welcome to Dashboard</h1>
+  </div>
 
-        {/* Removed InventoryManagement & UOMMaster Components */}
-      </main>
+  {/* Show content based on activePage */}
+  {activePage === "dashboard" && <h2>Dashboard Overview</h2>}
+  {activePage === "uomMaster" && <UOMMaster />}
+</main>
+
     </div>
   );
 };
