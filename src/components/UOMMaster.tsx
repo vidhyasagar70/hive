@@ -1,3 +1,9 @@
+
+
+
+
+
+
 import React, { useEffect, useState } from "react";
 import { fetchUomData, createUom, updateUom, deleteUom } from "../services/uomService";
 import { UOM } from "../types/uomtypes";
@@ -6,23 +12,23 @@ const UOMMaster: React.FC = () => {
   const [uomData, setUomData] = useState<UOM[]>([]);
   const [newUom, setNewUom] = useState<UOM>({ code: "", name: "", status: "" });
   const [editingUom, setEditingUom] = useState<UOM | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null); // Track which item is being deleted
   const [error, setError] = useState<string | null>(null);
+  const [reloadFlag, setReloadFlag] = useState(false); // Trigger re-fetch
 
   useEffect(() => {
     const loadUoms = async () => {
-      setIsLoading(true);
       const result = await fetchUomData();
       if (result.error) {
         setError(result.error);
       } else {
         setUomData(result.data || []);
       }
-      setIsLoading(false);
     };
-
     loadUoms();
-  }, []);
+  }, [reloadFlag]);
 
   const handleAddUom = async () => {
     if (!newUom.code || !newUom.name || !newUom.status) {
@@ -30,50 +36,43 @@ const UOMMaster: React.FC = () => {
       return;
     }
 
-    setIsLoading(true);
+    setIsAdding(true);
     const result = await createUom(newUom);
     if (result.error) {
       setError(result.error);
-    } else if (result.data) {
-      setUomData([...uomData, result.data]);
+    } else {
       setNewUom({ code: "", name: "", status: "" });
+      setReloadFlag((prev) => !prev);
     }
-    setIsLoading(false);
+    setIsAdding(false);
   };
+
   const handleEditUom = async () => {
     if (!editingUom?._id) {
-      console.error("Editing UOM ID is missing!");
       alert("UOM ID is missing!");
       return;
     }
-  
-    console.log("Editing UOM:", editingUom);
-  
-    setIsLoading(true);
+
+    setIsUpdating(true);
     const result = await updateUom(editingUom._id, editingUom);
-  
     if (result.error) {
-      console.error("Update Error:", result.error);
       setError(result.error);
     } else {
-      console.log("UOM updated successfully:", result.data);
-      setUomData(uomData.map((u) => (u._id === editingUom._id ? (result.data as UOM) : u)));
       setEditingUom(null);
+      setReloadFlag((prev) => !prev);
     }
-  
-    setIsLoading(false);
+    setIsUpdating(false);
   };
-  
 
   const handleDeleteUom = async (id: string) => {
-    setIsLoading(true);
+    setDeletingId(id); // Track the item being deleted
     const result = await deleteUom(id);
     if (!result.error) {
-      setUomData(uomData.filter((u) => u._id !== id));
+      setReloadFlag((prev) => !prev);
     } else {
       setError(result.error);
     }
-    setIsLoading(false);
+    setDeletingId(null);
   };
 
   return (
@@ -86,7 +85,7 @@ const UOMMaster: React.FC = () => {
         <input type="text" placeholder="Code" value={newUom.code} onChange={(e) => setNewUom({ ...newUom, code: e.target.value })} />
         <input type="text" placeholder="Name" value={newUom.name} onChange={(e) => setNewUom({ ...newUom, name: e.target.value })} />
         <input type="text" placeholder="Status" value={newUom.status} onChange={(e) => setNewUom({ ...newUom, status: e.target.value })} />
-        <button onClick={handleAddUom} disabled={isLoading}>{isLoading ? "Adding..." : "Add UOM"}</button>
+        <button onClick={handleAddUom} disabled={isAdding}>{isAdding ? "Adding..." : "Add UOM"}</button>
       </div>
 
       {/* Edit UOM Form */}
@@ -96,18 +95,20 @@ const UOMMaster: React.FC = () => {
           <input type="text" value={editingUom.code} onChange={(e) => setEditingUom({ ...editingUom, code: e.target.value })} />
           <input type="text" value={editingUom.name} onChange={(e) => setEditingUom({ ...editingUom, name: e.target.value })} />
           <input type="text" value={editingUom.status} onChange={(e) => setEditingUom({ ...editingUom, status: e.target.value })} />
-          <button onClick={handleEditUom} disabled={isLoading}>{isLoading ? "Updating..." : "Update UOM"}</button>
+          <button onClick={handleEditUom} disabled={isUpdating}>{isUpdating ? "Updating..." : "Update UOM"}</button>
           <button onClick={() => setEditingUom(null)}>Cancel</button>
         </div>
       )}
 
       {/* UOM List */}
-      <ul>
+      <ul style={{marginTop:"20px"}}>
         {uomData.map((u) => (
-          <li key={u._id}>
+          <li key={u._id} style={{marginBottom:"10px"}}>
             {u.code} - {u.name} - {u.status}
-            <button onClick={() => setEditingUom(u)}>Edit</button>
-            <button onClick={() => handleDeleteUom(u._id!)}>Delete</button>
+            <button onClick={() => setEditingUom(u)} style={{margin:"0 20px",padding:"2px"}}>Edit</button>
+            <button onClick={() => handleDeleteUom(u._id!)} disabled={deletingId === u._id} style={{margin:"0 20px",padding:"5px"}}>
+              {deletingId === u._id ? "Deleting..." : "Delete"}
+            </button>
           </li>
         ))}
       </ul>
